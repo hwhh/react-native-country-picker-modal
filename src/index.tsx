@@ -37,6 +37,7 @@ interface Props {
   withFilter?: boolean
   withFlag?: boolean
   withModal?: boolean
+  useNationality?: boolean
   disableNativeModal?: boolean
   visible?: boolean
   containerButtonStyle?: StyleProp<ViewStyle>

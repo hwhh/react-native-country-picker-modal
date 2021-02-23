@@ -62,6 +62,7 @@ interface CountryPickerProps {
   withCurrency?: boolean
   withFlag?: boolean
   withModal?: boolean
+  useNationality?: boolean
   disableNativeModal?: boolean
   visible?: boolean
   placeholder?: string
@@ -100,6 +101,7 @@ export const CountryPicker = (props: CountryPickerProps) => {
     withCurrency,
     withFlag,
     withModal,
+    useNationality,
     disableNativeModal,
     withFlagButton,
     onClose: handleClose,
@@ -169,7 +171,8 @@ export const CountryPicker = (props: CountryPickerProps) => {
       countryCodes,
       excludeCountries,
       preferredCountries,
-      withAlphaFilter
+      withAlphaFilter,
+      useNationality
     )
       .then(setCountries)
       .catch(console.warn)
@@ -228,5 +231,6 @@ CountryPicker.defaultProps = {
   withModal: true,
   withAlphaFilter: false,
   withCallingCode: false,
+  useNationality: false,
   placeholder: 'Select Country',
 }

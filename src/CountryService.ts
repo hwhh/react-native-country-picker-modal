@@ -1,14 +1,15 @@
 import {
-  CountryCode,
   Country,
-  TranslationLanguageCode,
-  TranslationLanguageCodeMap,
-  FlagType,
+  CountryCode,
   CountryCodeList,
+  FlagType,
   Region,
   Subregion,
+  TranslationLanguageCode,
+  TranslationLanguageCodeMap,
 } from './types'
 import Fuse from 'fuse.js'
+import {COUNTRIES} from "./assets/countires";
 
 const imageJsonUrl =
   'https://xcarpentier.github.io/react-native-country-picker-modal/countries/'
@@ -128,7 +129,8 @@ export const getCountriesAsync = async (
   countryCodes?: CountryCode[],
   excludeCountries?: CountryCode[],
   preferredCountries?: CountryCode[],
-  withAlphaFilter?: boolean
+  withAlphaFilter?: boolean,
+  useNationality?:boolean
 ): Promise<Country[]> => {
   const countriesRaw = await loadDataAsync(flagType)
   if (!countriesRaw) {
@@ -137,48 +139,57 @@ export const getCountriesAsync = async (
 
   if (preferredCountries && !withAlphaFilter) {
     const newCountryCodeList = [...preferredCountries, ...CountryCodeList.filter(code => !preferredCountries.includes(code))]
-
-    const countries = newCountryCodeList.filter(isCountryPresent(countriesRaw))
-    .map((cca2: CountryCode) => ({
-      cca2,
-      ...{
-        ...countriesRaw[cca2],
-        name:
-          (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
-            translation
-          ] ||
-          (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
-      },
-    }))
-    .filter(isRegion(region))
-    .filter(isSubregion(subregion))
-    .filter(isIncluded(countryCodes))
-    .filter(isExcluded(excludeCountries))
-    
-    return countries
-
+    return newCountryCodeList.filter(isCountryPresent(countriesRaw))
+        .map((cca2: CountryCode) => {
+          if (useNationality && COUNTRIES[cca2] && COUNTRIES[cca2]["Nationality"] !== '?') {
+            return ({
+              cca2,
+              ...{
+                ...countriesRaw[cca2],
+                name: COUNTRIES[cca2]["Nationality"],
+              }
+            });
+          } else {
+            return ({
+              cca2,
+              ...{
+                ...countriesRaw[cca2],
+                name: countriesRaw[cca2].name['common'],
+              }
+            });
+          }
+        })
+        .filter(isRegion(region))
+        .filter(isSubregion(subregion))
+        .filter(isIncluded(countryCodes))
+        .filter(isExcluded(excludeCountries))
   } else {
-    const countries = CountryCodeList.filter(isCountryPresent(countriesRaw))
-      .map((cca2: CountryCode) => ({
-        cca2,
-        ...{
-          ...countriesRaw[cca2],
-          name:
-            (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
-              translation
-            ] ||
-            (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
-        },
-      }))
-      .filter(isRegion(region))
-      .filter(isSubregion(subregion))
-      .filter(isIncluded(countryCodes))
-      .filter(isExcluded(excludeCountries))
-      .sort((country1: Country, country2: Country) =>
-        (country1.name as string).localeCompare(country2.name as string),
-      )
-
-    return countries
+    return CountryCodeList.filter(isCountryPresent(countriesRaw))
+        .map((cca2: CountryCode) => {
+          if (useNationality && COUNTRIES[cca2] && COUNTRIES[cca2]["Nationality"] !== '?') {
+            return ({
+              cca2,
+              ...{
+                ...countriesRaw[cca2],
+                name: COUNTRIES[cca2]["Nationality"],
+              }
+            });
+          } else {
+            return ({
+              cca2,
+              ...{
+                ...countriesRaw[cca2],
+                name: countriesRaw[cca2].name['common'],
+              }
+            });
+          }
+        })
+        .filter(isRegion(region))
+        .filter(isSubregion(subregion))
+        .filter(isIncluded(countryCodes))
+        .filter(isExcluded(excludeCountries))
+        .filter((thing, index, self) => self.findIndex(t => t.name === thing.name) === index)
+        .sort((country1, country2) => country1.name.localeCompare(country2.name))
   }
 }
 
