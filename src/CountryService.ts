@@ -9,7 +9,7 @@ import {
   TranslationLanguageCodeMap,
 } from './types'
 import Fuse from 'fuse.js'
-import {COUNTRIES} from "./assets/countires";
+import {COUNTRIES} from './assets/countires'
 
 const imageJsonUrl =
   'https://xcarpentier.github.io/react-native-country-picker-modal/countries/'
@@ -141,20 +141,33 @@ export const getCountriesAsync = async (
     const newCountryCodeList = [...preferredCountries, ...CountryCodeList.filter(code => !preferredCountries.includes(code))]
     return newCountryCodeList.filter(isCountryPresent(countriesRaw))
         .map((cca2: CountryCode) => {
+          // @ts-ignore
           if (useNationality && COUNTRIES[cca2] && COUNTRIES[cca2]["Nationality"] !== '?') {
             return ({
+              // @ts-ignore
               cca2,
               ...{
                 ...countriesRaw[cca2],
-                name: COUNTRIES[cca2]["Nationality"],
+                // @ts-ignore
+                name:
+                    (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
+                        translation
+                        ] ||
+                    (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
               }
             });
           } else {
             return ({
+              // @ts-ignore
               cca2,
               ...{
                 ...countriesRaw[cca2],
-                name: countriesRaw[cca2].name['common'],
+                // @ts-ignore
+                name:
+                    (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
+                        translation
+                        ] ||
+                    (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
               }
             });
           }
@@ -166,19 +179,24 @@ export const getCountriesAsync = async (
   } else {
     return CountryCodeList.filter(isCountryPresent(countriesRaw))
         .map((cca2: CountryCode) => {
+          // @ts-ignore
           if (useNationality && COUNTRIES[cca2] && COUNTRIES[cca2]["Nationality"] !== '?') {
             return ({
+              // @ts-ignore
               cca2,
               ...{
                 ...countriesRaw[cca2],
+                // @ts-ignore
                 name: COUNTRIES[cca2]["Nationality"],
               }
             });
           } else {
             return ({
+              // @ts-ignore
               cca2,
               ...{
                 ...countriesRaw[cca2],
+                // @ts-ignore
                 name: countriesRaw[cca2].name['common'],
               }
             });
